@@ -34,6 +34,7 @@ namespace RollingDiceUI.Models
                 }
                 else
                 {
+                    IsFound = false;
                     ImagesPath = "";
                 }
             }
