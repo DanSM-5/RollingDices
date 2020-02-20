@@ -27,7 +27,20 @@ namespace RollingDiceUI
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new RollDice(Environment.CurrentDirectory.Replace(@"bin\Debug", @"Images\"));
+
+            var dices = (Enumerable.Range(1, 8));
+            var sequences = new int[] { 1000000, 2000000, 4000000, 8000000, 16000000, 32000000 };
+            string path = (new DirectoryFinder()).GetImagesPath();
+
+            if (!String.IsNullOrEmpty(path))
+            {
+                DataContext = new RollDice(path, dices, sequences);
+            }
+            else
+            {
+                MessageBox.Show("There are missing files!", "Missing Files", MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Shutdown();
+            }
         }
 
         private async void startBtn_Click(object sender, RoutedEventArgs e)

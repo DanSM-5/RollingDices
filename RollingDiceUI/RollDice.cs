@@ -96,10 +96,10 @@ namespace RollingDiceUI
 
 
         // Constructor
-        public RollDice(string path)
+        public RollDice(string path, IEnumerable<int> dices, IEnumerable<int> sequences)
         {
-            AvailableDices = new ObservableCollection<int>(Enumerable.Range(1,8));
-            ValidSequences = new ObservableCollection<int> { 1000000, 2000000, 4000000, 8000000, 16000000, 32000000 };
+            AvailableDices = new ObservableCollection<int>(dices);
+            ValidSequences = new ObservableCollection<int>(sequences);
 
             Images = new List<Image>();
             Sources = new List<ImageSource> { null, null, null, null, null, null, null, null};
