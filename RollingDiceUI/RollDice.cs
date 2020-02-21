@@ -22,11 +22,8 @@ namespace RollingDiceUI
         // Fields
         private int numOfDice;
         private int sequence;
-        private readonly string path;
         private Process processType;
-        private RollingProcess RollingProcess;
         private string time;
-        private string progress;
 
         // Properties
         public ObservableCollection<int> AvailableDices { get; } 
@@ -34,20 +31,7 @@ namespace RollingDiceUI
         public List<Image> Images { get; }
         public List<ImageSource> Sources { get; }
         public List<Visibility> Visibles { get; }
-        //public ProgressReportModel ReportModel { get; set; }
         public IProgress<ProgressReportModel> Progress { get; set; }
-
-
-        public string Percentage
-        {
-            get { return progress; }
-            set 
-            { 
-                progress = value;
-                OnPropertyChanged(nameof(Percentage));
-            }
-        }
-
 
         public string Time
         {
@@ -104,7 +88,6 @@ namespace RollingDiceUI
             Images = new List<Image>();
             Sources = new List<ImageSource> { null, null, null, null, null, null, null, null};
             Visibles = new List<Visibility>();
-            this.path = path;
             ProcessType = Process.NoSelected;
 
             foreach (var file in Directory.GetFiles(path))
@@ -124,6 +107,10 @@ namespace RollingDiceUI
 
         // Methods
 
+        /// <summary>
+        /// Enebles/disebles images on the UI
+        /// </summary>
+        /// <param name="number"></param>
         private void SetImages(int number)
         {
             for (int i = 0; i < AvailableDices.Count; i++)
@@ -141,6 +128,9 @@ namespace RollingDiceUI
             }
         }
 
+        /// <summary>
+        /// Set values to default
+        /// </summary>
         private void SetInitialValues()
         {
             for(int i = 0; i < Sources.Count; i++)
@@ -150,10 +140,16 @@ namespace RollingDiceUI
             OnPropertyChanged(nameof(Sources));
         }
 
+        /// <summary>
+        /// Starts de execution of the rolling tasks
+        /// </summary>
+        /// <param name="progress">Object to report and update the UI</param>
+        /// <param name="ct">Token to cancel the process of rolling</param>
+        /// <returns>The time required to finish the process</returns>
         public async Task<string> ExecuteRoll(IProgress<ProgressReportModel> progress, CancellationToken ct)
         {
             Progress = progress;
-            RollingProcess = new RollingProcess(NumOfDice, Sequence);
+            RollingProcess rollingProcess = new RollingProcess(NumOfDice, Sequence);
             SetInitialValues();
             Progress.Report(new ProgressReportModel { PercentageComplete = 0, Total = 0});
             Stopwatch stopwatch = new Stopwatch();
@@ -162,17 +158,17 @@ namespace RollingDiceUI
             {
                 case Process.Sync:
                     stopwatch.Start();
-                    RollingProcess.RollDiceSyncBlocking(Report,AssignPicture, ct);
+                    rollingProcess.RollDiceSyncBlocking(Report,AssignPicture, ct);
                     stopwatch.Stop();
                     break;
                 case Process.Async:
                     stopwatch.Start();
-                    await RollingProcess.RollDiceAsyncNonBlocking(Report, AssignPicture, ct);
+                    await rollingProcess.RollDiceAsyncNonBlocking(Report, AssignPicture, ct);
                     stopwatch.Stop();
                     break;
                 case Process.AsyncParallel:
                     stopwatch.Start();
-                    await RollingProcess.RollDiceAsyncParallel(Report, AssignPicture, ct);
+                    await rollingProcess.RollDiceAsyncParallel(Report, AssignPicture, ct);
                     stopwatch.Stop();
                     break;
                 default:
@@ -182,6 +178,11 @@ namespace RollingDiceUI
             return $"{stopwatch.Elapsed.ToString("ss\\.fff")} s";
         }
 
+        /// <summary>
+        /// Assign the picture based in the result of the rolling process
+        /// </summary>
+        /// <param name="index">Index of the dice in the collection of sources and visibles</param>
+        /// <param name="value">Value of the result</param>
         public void AssignPicture(int index, int value)
         {
             Visibles[index] = Visibility.Hidden;
@@ -191,6 +192,11 @@ namespace RollingDiceUI
             OnPropertyChanged(nameof(Sources));
         }
 
+        /// <summary>
+        /// Reports the current progress of the rolling process
+        /// </summary>
+        /// <param name="counted">Number of </param>
+        /// <param name="percentage"></param>
         public void Report(int counted, int percentage)
         {
             Progress.Report(new ProgressReportModel 
@@ -198,9 +204,12 @@ namespace RollingDiceUI
                 PercentageComplete = percentage,
                 Total = counted
             });
-            Percentage = $"{percentage}%";
         }
 
+        /// <summary>
+        /// Reports when a property has changed value
+        /// </summary>
+        /// <param name="property">Name of the property to report</param>
         private void OnPropertyChanged(string property)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));

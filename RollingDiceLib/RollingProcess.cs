@@ -34,6 +34,10 @@ namespace RollingDiceLib
         /// <summary>
         /// Roll dices synchronously blocking GUI
         /// </summary>
+        /// <param name="report">Method used to report the current process</param>
+        /// <param name="done">Method that will be called when the process is done</param>
+        /// <param name="ct">Token to cancel the process</param>
+        /// <returns>Task of the rolling process</returns>
         public void RollDiceSyncBlocking(Action<int,int> report, Action<int,int> done, CancellationToken ct)
         {
             CounterList = new List<Counter>();
@@ -59,6 +63,10 @@ namespace RollingDiceLib
         /// <summary>
         /// Roll dices asynchronously in sequence
         /// </summary>
+        /// <param name="report">Method used to report the current process</param>
+        /// <param name="done">Method that will be called when the process is done</param>
+        /// <param name="ct">Token to cancel the process</param>
+        /// <returns>Task of the rolling process</returns>
         public async Task RollDiceAsyncNonBlocking(Action<int, int> report, Action<int,int> done, CancellationToken ct)
         {
             CounterList = new List<Counter>();
@@ -84,6 +92,10 @@ namespace RollingDiceLib
         /// <summary>
         /// Roll dices asynchronously in parallel tasks
         /// </summary>
+        /// <param name="report">Method used to report the current process</param>
+        /// <param name="done">Method that will be called when the process is done</param>
+        /// <param name="ct">Token to cancel the process</param>
+        /// <returns>Task of the rolling process</returns>
         public async Task RollDiceAsyncParallel(Action<int, int> report, Action<int,int> done, CancellationToken ct)
         {
             // List to save the reference of the tasks
@@ -109,8 +121,11 @@ namespace RollingDiceLib
         /// <summary>
         /// Executes a rolling task asynchronously
         /// </summary>
-        /// <param name="counter"></param>
-        /// <param name="index"></param>
+        /// <param name="counter">Object that keeps tracking of the count</param>
+        /// <param name="diceNumber">Number of the dice in the UI</param>
+        /// <param name="report">Method used to report the current process</param>
+        /// <param name="done">Method that will be called when the process is done</param>
+        /// <param name="ct">Token to cancel the process</param>
         /// <returns>Returns the final result of the dice as an integer</returns>
         private async Task<int> RollingTaskAsync(Counter counter, int diceNumber, Action<int, int> report, Action<int,int> done, CancellationToken ct)
         {
@@ -168,6 +183,12 @@ namespace RollingDiceLib
         /// <summary>
         /// Executes a rolling task synchronously
         /// </summary>
+        /// <param name="counter">Object that keeps tracking of the count</param>
+        /// <param name="diceNumber">Number of the dice in the UI</param>
+        /// <param name="report">Method used to report the current process</param>
+        /// <param name="done">Method that will be called when the process is done</param>
+        /// <param name="ct">Token to cancel the process</param>
+        /// <returns>Returns the final result of the dice as an integer</returns>
         private int RollingTaskSync(Counter counter, int diceNumber, Action<int, int> report, Action<int,int> done, CancellationToken ct)
         {
             int result = 1;

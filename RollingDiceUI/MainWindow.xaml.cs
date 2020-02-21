@@ -28,9 +28,23 @@ namespace RollingDiceUI
         {
             InitializeComponent();
 
+            // Number of dices to work with
+            // The application cannot work with more than 8 dices at the same time
             var dices = (Enumerable.Range(1, 8));
+
+            // Sequences available to roll
+            // You can add, change, or delete the numbers
             var sequences = new int[] { 1000000, 2000000, 4000000, 8000000, 16000000, 32000000 };
-            string path = (new DirectoryFinder()).GetImagesPath();
+
+            // Required files
+            // List of the names of the files that are required to execute the application
+            var files = new string[] { "0.png", "1.png", "2.png", "3.png", "4.png", "5.png", "6.png" };
+
+            // Name of the directory to search for
+            var directoryName = "Images";
+
+            // Get the path of the required files
+            string path = (new DirectoryFinder(directoryName, files)).GetDirectoryPath();
 
             if (!String.IsNullOrEmpty(path))
             {
@@ -38,7 +52,7 @@ namespace RollingDiceUI
             }
             else
             {
-                MessageBox.Show("There are missing files!", "Missing Files", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"There are missing files!{Environment.NewLine}Application can't start", "Missing Files", MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
             }
         }
@@ -71,6 +85,8 @@ namespace RollingDiceUI
                 timeTbl.Text = $"{ex.Message}";
                 startBtn.IsEnabled = true;
                 cts.Dispose();
+                cts = null;
+                cancelBtn.IsEnabled = true;
             }
 
             startBtn.IsEnabled = true;
@@ -78,11 +94,8 @@ namespace RollingDiceUI
 
         private void ReportProgress(object sender, ProgressReportModel e)
         {
-            if (e.PercentageComplete <= 100)
-            {
-                progressBar.Value = e.PercentageComplete;
-            }
-            
+            progressBar.Value = e.PercentageComplete;
+           
             if (e.PercentageComplete % 5 == 0)
             {
                 percentageTbl.Text = $"{e.PercentageComplete}%";
@@ -93,7 +106,8 @@ namespace RollingDiceUI
         {
             if (cts != null)
             {
-                cts.Cancel(); 
+                cts.Cancel();
+                cancelBtn.IsEnabled = false;
             }
         }
     }
